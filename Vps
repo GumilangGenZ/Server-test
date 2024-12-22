@@ -1,5 +1,5 @@
-# Use a base image that supports systemd, for example, Debian
-FROM kalilinux/kali-rolling
+# Use a base image that supports systemd, for example, Ubuntu
+FROM ubuntu:20.04
 
 RUN apt-get update && \
 apt-get install -y shellinabox && \
@@ -7,7 +7,7 @@ apt-get install -y systemd && \
 apt-get clean && \
 rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN useradd -m -s /bin/bash kali
-RUN echo 'gumilang:123456' | chpasswd
+RUN echo 'kali:123456' | chpasswd
 # Expose the web-based terminal port
 EXPOSE 4200
 

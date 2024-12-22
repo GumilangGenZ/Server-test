@@ -1,16 +1,23 @@
 # Use a base image that supports systemd, for example, Ubuntu
-FROM ubuntu:20.04
+FROM kalilinux/kali-rolling
 
-# Install necessary packages
-RUN apt-get update && \
-apt-get install -y shellinabox && \
-apt-get install -y systemd && \
-apt-get clean && \
-rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-RUN useradd -m -s /bin/bash root
-RUN echo 'root:root' | chpasswd
-# Expose the web-based terminal port
+#Perbarui sistem
+RUN apt update && apt upgrade -y
+
+#Instalasi Shellinabox
+RUN apt install -y shellinabox
+
+#Tambahkan pengguna
+RUN useradd -m -s /bin/bash kali
+
+#Atur kata sandi pengguna
+RUN echo "kali:kalidan" | chpasswd
+
+#Konfigurasi Shellinabox
+RUN shellinaboxd -port 4200 -s /:LOGIN
+
+#Expose port 4200
 EXPOSE 4200
 
-# Start shellinabox
-CMD ["/usr/bin/shellinaboxd", "-t", "-s", "/:LOGIN"]
+#Menjalankan perintah saat container dijalankan
+CMD ["shellinaboxd", "-port", "4200", "-s", "/:LOGIN"]

@@ -1,29 +1,23 @@
-#!/bin/bash
-# Update package list and install necessary packages
-sudo apt update
-sudo apt install xfce4 xfce4-goodies novnc python3-websockify python3-numpy tightvncserver htop nano neofetch firefox -y
+#Use official Kali Linux image
+FROM kalilinux/kali-rolling
 
-# Generate self-signed SSL certificate for noVNC
-openssl req -x509 -nodes -newkey rsa:3072 -keyout /root/novnc.pem -out /root/novnc.pem -days 3650
+#Update system
+RUN apt update && apt upgrade -y
 
-# Start VNC server as root
-USER=root vncserver
+#Install Shellinabox
+RUN apt install -y shellinabox
 
-# Kill the VNC server session
-vncserver -kill :1
-# Backup the original VNC startup script
-mv ~/.vnc/xstartup ~/.vnc/xstartup.bak
-# Create a new VNC startup script
-cat <<EOF > ~/.vnc/xstartup
-#!/bin/bash
-xrdb $HOME/.Xresources
-startxfce4 &
-EOF
+#Add user
+RUN useradd -m -s /bin/bash kali
 
-# Make the new startup script executable
+#Set user password
+RUN echo "kali:kali" | chpasswd
 
-chmod +x ~/.vnc/xstartup
-# Start the VNC server again as root
-USER=root vncserver
-# Start the WebSocket proxy for noVNC
-websockify -D --web=/usr/share/novnc/ --cert=/root/novnc.pem 6080 localhost:5901
+#Configure Shellinabox
+RUN shellinaboxd -port 4200 -s /:LOGIN
+
+#Expose port 4200
+EXPOSE 4200
+
+#Run command when container starts
+CMD ["shellinaboxd", "-port", "4200", "-s", "/:LOGIN"]

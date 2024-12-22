@@ -1,23 +1,15 @@
-#Use official Kali Linux image
+# Use a base image that supports systemd, for example, Debian
 FROM kalilinux/kali-rolling
 
-#Update system
-RUN apt update && apt upgrade -y
-
-#Install Shellinabox
-RUN apt install -y shellinabox
-
-#Add user
+RUN apt-get update && \
+apt-get install -y shellinabox && \
+apt-get install -y systemd && \
+apt-get clean && \
+rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 RUN useradd -m -s /bin/bash kali
-
-#Set user password
-RUN echo "kali:kali" | chpasswd
-
-#Configure Shellinabox
-RUN shellinaboxd -port 4200 -s /:LOGIN
-
-#Expose port 4200
+RUN echo 'gumilang:123456' | chpasswd
+# Expose the web-based terminal port
 EXPOSE 4200
 
-#Run command when container starts
-CMD ["shellinaboxd", "-port", "4200", "-s", "/:LOGIN"]
+# Start shellinabox
+CMD ["/usr/bin/shellinaboxd", "-t", "-s", "/:LOGIN"]
